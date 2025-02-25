@@ -1,0 +1,158 @@
+R1
+
+en
+conf t
+no ip domain-lookup
+line con 0
+logg s
+exit
+hostname R1
+
+int g0/1
+ip address 192.168.1.1 255.255.255.0
+no shut
+interface s0/0/0
+ip address 10.1.1.1 255.255.255.252
+no shut
+clock rate 64000
+exit
+
+router ospf 1
+passive-interface g0/1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+router-id 1.1.1.1
+exit
+
+security passwords min-length 10
+enable algorithm-type scrypt secret cisco12345
+
+line console 0
+password cisco12345
+exec-timeiout 5 0
+login
+
+line aux 0
+password cisco12345
+exec-timeout 5 0
+login
+
+line vty 0 4
+password cisco12345
+exec-timeout 5 0
+transport input telnet
+login
+exit
+
+banner motd $Unauthorized access strictly prohibited!$
+service password-encryption
+username user01 algorithm-type scrypt secret cisco12345
+
+line aux 0
+login local
+exit
+
+ip domain-name ccnasecurity.com
+
+username admin privilege 15 algorithm-type scrypt secret cisco12345
+
+line vty 0 4
+privilege level 15
+login local
+transport input ssh
+exit
+
+crypto key zeroize rsa
+
+
+
+R2
+
+en
+conf t
+no ip domain-lookup
+line con 0
+logg s
+exit
+hostname R2
+
+int s0/0/0
+ip address 10.1.1.2 255.255.255.252
+no shut
+interface s0/0/1
+ip address 10.2.2.2 255.255.255.252
+no shut
+clock rate 64000
+exit
+
+router ospf 1
+network 10.2.2.2 0.0.0.3 area 0
+network 10.1.1.0 0.0.0.3 area 0
+router-id 2.2.2.2
+
+R3
+
+en
+conf t
+no ip domain-lookup
+line con 0
+logg s
+exit
+hostname R3
+
+int g0/0/1
+ip address 192.168.3.1 255.255.255.0
+no shut
+interface s0/1/1
+ip address 10.2.2.1 255.255.255.252
+no shut
+exit
+
+router ospf 1
+passive-interface g0/0/1
+network 192.168.3.0 0.0.0.255 area 0
+network 10.2.2.0 0.0.0.3 area 0
+router-id 3.3.3.3
+exit
+
+security passwords min-length 10
+enable algorithm-type scrypt secret cisco12345
+
+line console 0
+password cisco12345
+exec-timeiout 5 0
+login
+
+line aux 0
+password cisco12345
+exec-timeout 5 0
+login
+
+line vty 0 4
+password cisco12345
+exec-timeout 5 0
+transport input telnet
+login
+exit
+
+banner motd $Unauthorized access strictly prohibited!$
+service password-encryption
+username user01 algorithm-type scrypt secret cisco12345
+
+line aux 0
+login local
+exit
+
+ip domain-name ccnasecurity.com
+
+username admin privilege 15 algorithm-type scrypt secret cisco12345
+
+line vty 0 4
+privilege level 15
+login local
+transport input ssh
+exit
+
+crypto key zeroize rsa
+
+
